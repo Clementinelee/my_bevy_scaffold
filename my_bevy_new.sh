@@ -78,15 +78,10 @@ info "Querying latest Bevy release version from crates.io..."
 
 # 策略: 优先 cargo search，失败则 fallback 到 crates.io API，再失败则用已知版本
 LATEST_BEVY=""
-if command -v python3 &>/dev/null; then
-  # 通过 crates.io API 获取最新版本（最可靠）
-  LATEST_BEVY=$(curl -sS --max-time 5 https://crates.io/api/v1/crates/bevy 2>/dev/null \
-    | python3 -c "import sys,json; print(json.load(sys.stdin)['crate']['max_stable_version'])" 2>/dev/null || echo "")
-fi
 
 if [ -z "$LATEST_BEVY" ]; then
   # fallback: cargo search
-  LATEST_BEVY=$(cargo search bevy --limit 1 2>/dev/null | head -1 | sed -n 's/.*bevy = "\([^"]*\)".*/\1/p' || echo "")
+  LATEST_BEVY=$(cargo search bevy --registry crates-io --limit 1 2>/dev/null | head -1 | sed -n 's/.*bevy = "\([^"]*\)".*/\1/p' || echo "")
 fi
 
 if [ -z "$LATEST_BEVY" ]; then
